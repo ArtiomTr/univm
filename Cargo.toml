@@ -4,7 +4,8 @@ members = [
     "crates/univm-interface", 
     "crates/univm-platform", 
     "crates/univm-platform-base", 
-    "crates/univm-platform-risc0"
+    "crates/univm-platform-risc0", 
+    "crates/univm-io",
 ]
 resolver = "3"
 
@@ -17,5 +18,8 @@ univm-interface = { path = "./crates/univm-interface" }
 univm-platform = { path = "./crates/univm-platform" }
 univm-platform-base = { path = "./crates/univm-platform-base" }
 univm-platform-risc0 = { path = "./crates/univm-platform-risc0" }
+univm-io = { path = "./crates/univm-io" }
 
 risc0-zkvm = { version = "3.0.4" }
+ssz = { git = "https://github.com/grandinetech/grandine", package = "ssz", branch = "develop" }
+ssz-derive = { git = "https://github.com/grandinetech/grandine", package = "ssz_derive", branch = "develop" }
