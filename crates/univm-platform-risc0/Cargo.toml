@@ -1,0 +1,8 @@
+[package]
+name = "univm-platform-risc0"
+version = "0.1.0"
+edition.workspace = true
+
+[dependencies]
+univm-platform-base = { workspace = true }
+risc0-zkvm = { workspace = true }
