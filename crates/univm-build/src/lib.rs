@@ -4,11 +4,14 @@ pub struct BuildOptions {}
 
 impl BuildOptions {
     pub fn new() -> Self {
-        BuildOptions {  }
+        BuildOptions {}
     }
 
     pub fn build(self) {
-        risc0::Risc0BuildOptions::new()
-            .build();
+        risc0::Risc0BuildOptions::new().build();
     }
+}
+
+pub fn build() {
+    BuildOptions::new().build();
 }

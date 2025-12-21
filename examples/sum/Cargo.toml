@@ -1,0 +1,16 @@
+[workspace]
+members = ["guest"]
+resolver = "3"
+
+[workspace.dependencies]
+univm-platform = { path = "../../crates/univm-platform" }
+univm-io = { path = "../../crates/univm-io" }
+univm-build = { path = "../../crates/univm-build" }
+
+[package]
+name = "sum"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+zkvm-guest = { path = "./guest" }

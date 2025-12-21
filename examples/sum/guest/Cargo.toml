@@ -1,0 +1,11 @@
+[package]
+name = "zkvm-guest"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+univm-platform = { workspace = true }
+univm-io = { workspace = true, features = ["ssz"] }
+
+[build-dependencies]
+univm-build = { workspace = true }

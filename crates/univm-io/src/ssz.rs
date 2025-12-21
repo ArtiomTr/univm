@@ -1,11 +1,9 @@
-use std::marker::PhantomData;
-
 use ssz::{ReadError, SszReadDefault, SszWrite, WriteError};
 use thiserror::Error;
 
 use crate::Io;
 
-pub struct SszIo<T>(PhantomData<T>);
+pub struct SszIo;
 
 #[derive(Debug, Error)]
 pub enum SszError {
@@ -16,16 +14,14 @@ pub enum SszError {
     Write(#[from] WriteError),
 }
 
-impl<T: SszReadDefault + SszWrite> Io for SszIo<T> {
-    type Value = T;
-
+impl<T: SszReadDefault + SszWrite> Io<T> for SszIo {
     type Error = SszError;
 
-    fn serialize(value: Self::Value) -> Result<Vec<u8>, Self::Error> {
+    fn serialize(&self, value: T) -> Result<Vec<u8>, Self::Error> {
         Ok(value.to_ssz()?)
     }
 
-    fn deserialize(bytes: &[u8]) -> Result<Self::Value, Self::Error> {
-        Ok(Self::Value::from_ssz_default(bytes)?)
+    fn deserialize(&self, bytes: &[u8]) -> Result<T, Self::Error> {
+        Ok(T::from_ssz_default(bytes)?)
     }
 }
