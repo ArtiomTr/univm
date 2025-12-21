@@ -21,6 +21,7 @@ univm-platform-risc0 = { path = "./crates/univm-platform-risc0" }
 univm-io = { path = "./crates/univm-io" }
 
 risc0-zkvm = { version = "3.0.4" }
+risc0-build = { version = "3.0.4" }
 ssz = { git = "https://github.com/grandinetech/grandine", package = "ssz", branch = "develop" }
 ssz-derive = { git = "https://github.com/grandinetech/grandine", package = "ssz_derive", branch = "develop" }
 thiserror = { version = "2.0.17" }
