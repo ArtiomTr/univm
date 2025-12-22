@@ -3,9 +3,16 @@ name = "zkvm-guest"
 version = "0.1.0"
 edition = "2024"
 
+[lib]
+path = "src/main.rs"
+
+[[bin]]
+name = "zkvm-guest"
+path = "src/main.rs"
+
 [dependencies]
 univm-platform = { workspace = true }
-univm-io = { workspace = true, features = ["ssz"] }
+univm-io = { workspace = true }
 
 [build-dependencies]
 univm-build = { workspace = true }

@@ -1,4 +1,3 @@
-use risc0_zkvm::guest::env;
 use univm_platform_base::Platform;
 
 pub struct Risc0Platform;
