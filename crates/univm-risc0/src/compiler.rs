@@ -1,4 +1,4 @@
-use std::{fs::File, io::Write as _, path::Path};
+use std::path::Path;
 
 use risc0_build::GuestOptions;
 use univm_interface::compiler::{CompilationResult, Compiler};
@@ -25,9 +25,11 @@ impl Compiler for Risc0Compiler {
         assert!(entries.len() == 1, "too many entries");
 
         let elf_path = &entry.path;
+        let image_id = entry.image_id.as_words();
 
         Ok(CompilationResult {
-            vm_name: "univm_risc0::Risc0".to_owned(),
+            vm_name: "Risc0".to_owned(),
+            vm_full_name: "univm_risc0::Risc0".to_owned(),
             program_name: "univm_risc0::Risc0Program".to_owned(),
             program_impl: format!(
                 r#"pub struct {base_program_name}Risc0(univm_risc0::Risc0Program<$input, $output, $io>);
@@ -35,8 +37,9 @@ impl Compiler for Risc0Compiler {
                 impl std::default::Default for {base_program_name}Risc0 {{
                     fn default() -> Self {{
                         const ELF: &[u8] = include_bytes!({elf_path:?});
+                        const DIGEST: [u32; 8] = {image_id:?};
 
-                        Self(univm_risc0::Risc0Program::<$input, $output, $io>::new(ELF))
+                        Self(univm_risc0::Risc0Program::<$input, $output, $io>::new(ELF, DIGEST, $io))
                     }}
                 }}
 

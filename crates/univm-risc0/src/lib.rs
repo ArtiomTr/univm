@@ -2,7 +2,7 @@ pub mod compiler;
 
 use std::marker::PhantomData;
 
-use risc0_zkvm::{ExecutorEnv, Receipt, SessionInfo, default_executor};
+use risc0_zkvm::{Digest, ExecutorEnv, Receipt, SessionInfo, default_executor, default_prover};
 use univm_interface::{ExecutionReport, GuestProgram, Proof, Zkvm, ZkvmMethods};
 use univm_io::Io;
 
@@ -35,9 +35,21 @@ impl ExecutionReport for Risc0ExecutionReport {}
 
 pub struct Risc0Program<In, Out, Io> {
     elf: Vec<u8>,
+    image_id: Digest,
     io: Io,
 
     _phantom: PhantomData<(In, Out)>,
+}
+
+impl<TInput, TOutput, TIo: Io<TInput> + Io<TOutput>> Risc0Program<TInput, TOutput, TIo> {
+    fn new(elf: &[u8], image_id: [u32; 8], io: TIo) -> Self {
+        Self {
+            elf: elf.to_vec(),
+            image_id: image_id.into(),
+            io,
+            _phantom: PhantomData,
+        }
+    }
 }
 
 impl<TInput, TOutput, TIo: Io<TInput> + Io<TOutput>> GuestProgram<Risc0>
@@ -63,11 +75,22 @@ impl<TInput, TOutput, TIo: Io<TInput> + Io<TOutput>> GuestProgram<Risc0>
         &self,
         input: Self::Input,
     ) -> Result<(Self::Output, Risc0Proof, Risc0ExecutionReport), ()> {
+        let bytes = self.io.serialize(input).unwrap();
+        let env = ExecutorEnv::builder().write_slice(&bytes).build().unwrap();
+        let prover = default_prover();
+
+        let info = prover.prove(env, &self.elf).unwrap();
+
+        let output =
+            <TIo as Io<Self::Output>>::deserialize(&self.io, &info.receipt.journal.bytes).unwrap();
+        let proof = Risc0Proof(info.receipt);
+
         todo!()
+        // Ok((output, ))
     }
 
     fn verify(&self, proof: &Risc0Proof) -> bool {
-        todo!()
+        proof.0.verify(self.image_id).is_ok()
     }
 }
 

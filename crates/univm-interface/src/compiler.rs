@@ -1,4 +1,4 @@
-use std::{fs::File, path::Path};
+use std::path::Path;
 
 pub trait Compiler {
     fn compile(
@@ -10,8 +10,10 @@ pub trait Compiler {
 }
 
 pub struct CompilationResult {
-    /// Fully qualified zkvm name.
     pub vm_name: String,
+
+    /// Fully qualified zkvm name.
+    pub vm_full_name: String,
 
     /// Fully qualified program struct name.
     pub program_name: String,
