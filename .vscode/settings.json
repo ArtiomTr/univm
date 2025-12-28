@@ -1,3 +1,9 @@
 {
-    "rust-analyzer.cargo.features": ["ssz"]
+    "rust-analyzer.cargo.features": [
+        "ssz"
+    ],
+    "[rust]": {
+        "editor.defaultFormatter": "rust-lang.rust-analyzer"
+    },
+    "editor.formatOnSave": true
 }

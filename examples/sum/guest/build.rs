@@ -1,3 +1,3 @@
 fn main() {
-    univm_build::build();
+    univm_build::new().add(univm_risc0::compiler()).build();
 }

@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
-use quote::{quote, quote_spanned};
-use syn::{ItemFn, parse::Parse, parse_macro_input, spanned::Spanned};
+use quote::quote;
+use syn::{Ident, ItemFn, parse::Parse, parse_macro_input, spanned::Spanned};
 
 struct EntrypointAttributes {
     io: syn::Ident,
@@ -50,21 +50,48 @@ fn emit_entrypoint(
 
     let io = attr.io;
 
+    let fn_name = &item.sig.ident;
+    let fn_body = &item.block;
+    let fn_vis = &item.vis;
+    let fn_attrs = &item.attrs;
+    let fn_sig = &item.sig;
+
+    let cloned_sig = {
+        let mut s = item.sig.clone();
+
+        s.ident = Ident::new(format!("__{}", s.ident.to_string()).as_str(), s.span());
+
+        s
+    };
+
+    let cloned_ident = &cloned_sig.ident;
+
     Ok(quote! {
-        // univm_platform::entrypoint!(main);
+        #[cfg(target_os = "zkvm")]
+        #(#fn_attrs)*
+        #cloned_sig {
+            #fn_body
+        }
 
-
-
-        pub fn main() {
+        #[cfg(target_os = "zkvm")]
+        #fn_vis #fn_sig {
             let input = univm_platform::read::<#input>(#io);
 
+            let output = #cloned_ident(input);
+        }
 
+        #[cfg(not(target_os = "zkvm"))]
+        #fn_vis fn #fn_name<T: univm_interface::Zkvm>() {}
+
+        #[cfg(not(target_os = "zkvm"))]
+        fn main() {
+            println!("This crate must be used only for running from zkvm.");
         }
     })
 }
 
 #[proc_macro_attribute]
-pub fn entrypoint(attr: TokenStream, item: TokenStream) -> TokenStream {
+pub fn function(attr: TokenStream, item: TokenStream) -> TokenStream {
     let attr = parse_macro_input!(attr as EntrypointAttributes);
     let item = parse_macro_input!(item as ItemFn);
 

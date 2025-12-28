@@ -1,8 +1,3 @@
-use univm_io::ssz::SszIo;
+use zkvm_guest_lib::main;
 
-pub struct Input {}
-
-#[univm_platform::entrypoint(SszIo)]
-fn main(input: Input) {
-    println!("Hello, world!");
-}
+univm_platform::entrypoint!(main);

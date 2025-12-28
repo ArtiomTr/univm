@@ -105,14 +105,6 @@ impl ZkvmMethods for Risc0Zkvm {
     }
 }
 
-struct Risc0Program {
-    elf: Vec<u8>,
-}
-
-impl<T> GuestProgram<Risc0> for Risc0Program {
-    type Output = T;
-}
-
 struct Program;
 
 mod risc0 {
@@ -201,6 +193,4 @@ fn main() {
     let (output, report) = program.execute(&zkvm);
 
     println!("{} {output} {}", zkvm.name(), report.cycles());
-
-    let zkvm = StateTransitionProgram::init(&zkvm);
 }

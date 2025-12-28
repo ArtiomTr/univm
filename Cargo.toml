@@ -6,7 +6,8 @@ members = [
     "crates/univm-platform-base", 
     "crates/univm-platform-risc0", 
     "crates/univm-io", 
-    "crates/univm-platform-macros",
+    "crates/univm-platform-macros", 
+    "crates/univm-risc0",
 ]
 resolver = "3"
 
@@ -20,6 +21,7 @@ univm-platform = { path = "./crates/univm-platform" }
 univm-platform-base = { path = "./crates/univm-platform-base" }
 univm-platform-risc0 = { path = "./crates/univm-platform-risc0" }
 univm-platform-macros = { path = "./crates/univm-platform-macros" }
+univm-risc0 = { path = "./crates/univm-risc0" }
 univm-io = { path = "./crates/univm-io" }
 
 risc0-zkvm = { version = "3.0.4" }
