@@ -5,7 +5,6 @@ edition.workspace = true
 
 [dependencies]
 univm-interface = { workspace = true }
-risc0-build = { workspace = true }
 
 [features]
 dockerized = []

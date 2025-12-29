@@ -1,16 +1,24 @@
 pub mod compiler;
 
-use std::marker::PhantomData;
+use std::{marker::PhantomData, rc::Rc};
 
-use risc0_zkvm::{Digest, ExecutorEnv, Receipt, SessionInfo, default_executor, default_prover};
+use risc0_zkvm::{
+    Digest, Executor, ExecutorEnv, Prover, Receipt, SessionInfo, default_executor, default_prover,
+};
 use univm_interface::{ExecutionReport, GuestProgram, Proof, Zkvm, ZkvmMethods};
 use univm_io::Io;
 
-pub struct Risc0;
+pub struct Risc0 {
+    executor: Rc<dyn Executor + 'static>,
+    prover: Rc<dyn Prover + 'static>,
+}
 
 impl Risc0 {
     fn new() -> Self {
-        Self
+        Self {
+            executor: default_executor(),
+            prover: default_prover(),
+        }
     }
 }
 
@@ -58,12 +66,15 @@ impl<TInput, TOutput, TIo: Io<TInput> + Io<TOutput>> GuestProgram<Risc0>
     type Input = TInput;
     type Output = TOutput;
 
-    fn execute(&self, input: Self::Input) -> Result<(Self::Output, Risc0ExecutionReport), ()> {
+    fn execute(
+        &self,
+        zkvm: &Risc0,
+        input: Self::Input,
+    ) -> Result<(Self::Output, Risc0ExecutionReport), ()> {
         let bytes = self.io.serialize(input).unwrap();
         let env = ExecutorEnv::builder().write_slice(&bytes).build().unwrap();
-        let executor = default_executor();
 
-        let info = executor.execute(env, &self.elf).unwrap();
+        let info = zkvm.executor.execute(env, &self.elf).unwrap();
 
         let output = <TIo as Io<Self::Output>>::deserialize(&self.io, &info.journal.bytes).unwrap();
         let report = Risc0ExecutionReport(info);
@@ -73,13 +84,13 @@ impl<TInput, TOutput, TIo: Io<TInput> + Io<TOutput>> GuestProgram<Risc0>
 
     fn prove(
         &self,
+        zkvm: &Risc0,
         input: Self::Input,
     ) -> Result<(Self::Output, Risc0Proof, Risc0ExecutionReport), ()> {
         let bytes = self.io.serialize(input).unwrap();
         let env = ExecutorEnv::builder().write_slice(&bytes).build().unwrap();
-        let prover = default_prover();
 
-        let info = prover.prove(env, &self.elf).unwrap();
+        let info = zkvm.prover.prove(env, &self.elf).unwrap();
 
         let output =
             <TIo as Io<Self::Output>>::deserialize(&self.io, &info.receipt.journal.bytes).unwrap();
@@ -89,7 +100,7 @@ impl<TInput, TOutput, TIo: Io<TInput> + Io<TOutput>> GuestProgram<Risc0>
         // Ok((output, ))
     }
 
-    fn verify(&self, proof: &Risc0Proof) -> bool {
+    fn verify(&self, _zkvm: &Risc0, proof: &Risc0Proof) -> bool {
         proof.0.verify(self.image_id).is_ok()
     }
 }

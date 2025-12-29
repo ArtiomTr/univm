@@ -17,6 +17,7 @@ pub fn read<T>(reader: impl univm_io::Io<T>) -> T {
     reader.deserialize(bytes).unwrap()
 }
 
+#[macro_export]
 macro_rules! entrypoint {
     ($curr: ident) => {
         cfg_if::cfg_if! {

@@ -12,3 +12,4 @@ univm-io = { workspace = true, features = ["ssz"] }
 
 [build-dependencies]
 univm-build = { workspace = true }
+univm-risc0 = { workspace = true }

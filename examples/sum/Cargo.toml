@@ -6,6 +6,7 @@ resolver = "3"
 univm-platform = { path = "../../crates/univm-platform" }
 univm-io = { path = "../../crates/univm-io" }
 univm-build = { path = "../../crates/univm-build" }
+univm-risc0 = { path = "../../crates/univm-risc0" }
 
 [package]
 name = "sum"

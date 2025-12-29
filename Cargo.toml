@@ -1,12 +1,12 @@
 [workspace]
 members = [
     "crates/univm-build",
-    "crates/univm-interface", 
-    "crates/univm-platform", 
-    "crates/univm-platform-base", 
-    "crates/univm-platform-risc0", 
-    "crates/univm-io", 
-    "crates/univm-platform-macros", 
+    "crates/univm-interface",
+    "crates/univm-platform",
+    "crates/univm-platform-base",
+    "crates/univm-platform-risc0",
+    "crates/univm-io",
+    "crates/univm-platform-macros",
     "crates/univm-risc0",
 ]
 resolver = "3"
@@ -33,3 +33,4 @@ syn = { version = "2.0.111" }
 quote = { version = "1.0.42" }
 proc-macro2 = { version = "1.0.103" }
 cfg-if = { version = "1.0.4" }
+paste = { version = "1.0.15" }

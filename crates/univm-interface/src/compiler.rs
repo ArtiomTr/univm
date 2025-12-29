@@ -1,12 +1,9 @@
 use std::path::Path;
 
+pub use paste::paste;
+
 pub trait Compiler {
-    fn compile(
-        &self,
-        base_program_name: String,
-        crate_path: &Path,
-        target_path: &Path,
-    ) -> Result<CompilationResult, ()>;
+    fn compile(&self, crate_path: &Path, target_path: &Path) -> Result<CompilationResult, ()>;
 }
 
 pub struct CompilationResult {

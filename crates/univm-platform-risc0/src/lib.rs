@@ -12,3 +12,24 @@ impl Platform for Risc0Platform {
         todo!()
     }
 }
+
+#[macro_export]
+macro_rules! __zkvm_entrypoint {
+    ($entry_name: path) => {
+        #[!no_main]
+
+        // Copy-pasted risc0_zkvm::entry, just to additionally provide #[!no_main].
+
+        // Type check the given path
+        const ZKVM_ENTRY: fn() = $path;
+
+        // Include generated main in a module so we don't conflict
+        // with any other definitions of "main" in this file.
+        mod zkvm_generated_main {
+            #[no_mangle]
+            fn main() {
+                super::ZKVM_ENTRY()
+            }
+        }
+    };
+}
