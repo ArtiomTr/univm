@@ -4375,6 +4375,7 @@ dependencies = [
 name = "univm-risc0"
 version = "0.1.0"
 dependencies = [
+ "cfg-if",
  "risc0-build",
  "risc0-zkvm",
  "univm-interface",

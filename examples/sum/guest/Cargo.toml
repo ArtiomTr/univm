@@ -12,4 +12,6 @@ univm-io = { workspace = true, features = ["ssz"] }
 
 [build-dependencies]
 univm-build = { workspace = true }
+
+[target.'cfg(not(target_os = "zkvm"))'.build-dependencies]
 univm-risc0 = { workspace = true }

@@ -17,3 +17,11 @@ pub struct CompilationResult {
 
     pub program_impl: String,
 }
+
+pub struct StubCompiler;
+
+impl Compiler for StubCompiler {
+    fn compile(&self, _crate_path: &Path, _target_path: &Path) -> Result<CompilationResult, ()> {
+        panic!("stub compiler")
+    }
+}
