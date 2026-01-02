@@ -1,0 +1,253 @@
+{
+    "packages": [
+        {
+            "name": "zkvm-guest",
+            "version": "0.1.0",
+            "id": "path+file:///home/necolt/workspace/univm/examples/sum/guest#zkvm-guest@0.1.0",
+            "license": null,
+            "license_file": null,
+            "description": null,
+            "source": null,
+            "dependencies": [
+                {
+                    "name": "univm-build",
+                    "source": null,
+                    "req": "*",
+                    "kind": "build",
+                    "rename": null,
+                    "optional": false,
+                    "uses_default_features": true,
+                    "features": [],
+                    "target": null,
+                    "registry": null,
+                    "path": "/home/necolt/workspace/univm/crates/univm-build"
+                },
+                {
+                    "name": "univm-risc0",
+                    "source": null,
+                    "req": "*",
+                    "kind": "build",
+                    "rename": null,
+                    "optional": false,
+                    "uses_default_features": true,
+                    "features": [],
+                    "target": null,
+                    "registry": null,
+                    "path": "/home/necolt/workspace/univm/crates/univm-risc0"
+                }
+            ],
+            "targets": [
+                {
+                    "kind": [
+                        "lib"
+                    ],
+                    "crate_types": [
+                        "lib"
+                    ],
+                    "name": "zkvm_guest",
+                    "src_path": "/home/necolt/workspace/univm/examples/sum/guest/src/lib.rs",
+                    "edition": "2024",
+                    "doc": true,
+                    "doctest": true,
+                    "test": true
+                },
+                {
+                    "kind": [
+                        "custom-build"
+                    ],
+                    "crate_types": [
+                        "bin"
+                    ],
+                    "name": "build-script-build",
+                    "src_path": "/home/necolt/workspace/univm/examples/sum/guest/build.rs",
+                    "edition": "2024",
+                    "doc": false,
+                    "doctest": false,
+                    "test": false
+                }
+            ],
+            "features": {},
+            "manifest_path": "/home/necolt/workspace/univm/examples/sum/guest/Cargo.toml",
+            "metadata": null,
+            "publish": null,
+            "authors": [],
+            "categories": [],
+            "keywords": [],
+            "readme": null,
+            "repository": null,
+            "homepage": null,
+            "documentation": null,
+            "edition": "2024",
+            "links": null,
+            "default_run": null,
+            "rust_version": null
+        },
+        {
+            "name": "zkvm-guest-methods",
+            "version": "0.1.0",
+            "id": "path+file:///home/necolt/workspace/univm/examples/sum/guest/methods#zkvm-guest-methods@0.1.0",
+            "license": null,
+            "license_file": null,
+            "description": null,
+            "source": null,
+            "dependencies": [
+                {
+                    "name": "bls12_381",
+                    "source": "git+https://github.com/grandinetech/universal-precompiles.git?tag=bls12_381-6bb9695-up.2",
+                    "req": "*",
+                    "kind": null,
+                    "rename": null,
+                    "optional": false,
+                    "uses_default_features": true,
+                    "features": [
+                        "zkvm-risc0"
+                    ],
+                    "target": null,
+                    "registry": null
+                },
+                {
+                    "name": "sha2",
+                    "source": "git+https://github.com/grandinetech/universal-precompiles.git?tag=sha2-v0.10.9-up.2",
+                    "req": "*",
+                    "kind": null,
+                    "rename": null,
+                    "optional": false,
+                    "uses_default_features": true,
+                    "features": [
+                        "zkvm-risc0"
+                    ],
+                    "target": null,
+                    "registry": null
+                },
+                {
+                    "name": "univm-io",
+                    "source": null,
+                    "req": "*",
+                    "kind": null,
+                    "rename": null,
+                    "optional": false,
+                    "uses_default_features": true,
+                    "features": [
+                        "ssz"
+                    ],
+                    "target": null,
+                    "registry": null,
+                    "path": "/home/necolt/workspace/univm/crates/univm-io"
+                },
+                {
+                    "name": "univm-platform",
+                    "source": null,
+                    "req": "*",
+                    "kind": null,
+                    "rename": null,
+                    "optional": false,
+                    "uses_default_features": true,
+                    "features": [],
+                    "target": null,
+                    "registry": null,
+                    "path": "/home/necolt/workspace/univm/crates/univm-platform"
+                }
+            ],
+            "targets": [
+                {
+                    "kind": [
+                        "lib"
+                    ],
+                    "crate_types": [
+                        "lib"
+                    ],
+                    "name": "zkvm_guest_methods_lib",
+                    "src_path": "/home/necolt/workspace/univm/examples/sum/guest/methods/src/lib.rs",
+                    "edition": "2024",
+                    "doc": true,
+                    "doctest": true,
+                    "test": true
+                },
+                {
+                    "kind": [
+                        "bin"
+                    ],
+                    "crate_types": [
+                        "bin"
+                    ],
+                    "name": "zkvm-guest-methods",
+                    "src_path": "/home/necolt/workspace/univm/examples/sum/guest/methods/src/main.rs",
+                    "edition": "2024",
+                    "doc": true,
+                    "doctest": false,
+                    "test": true
+                }
+            ],
+            "features": {},
+            "manifest_path": "/home/necolt/workspace/univm/examples/sum/guest/methods/Cargo.toml",
+            "metadata": null,
+            "publish": null,
+            "authors": [],
+            "categories": [],
+            "keywords": [],
+            "readme": null,
+            "repository": null,
+            "homepage": null,
+            "documentation": null,
+            "edition": "2024",
+            "links": null,
+            "default_run": null,
+            "rust_version": null
+        },
+        {
+            "name": "sum",
+            "version": "0.1.0",
+            "id": "path+file:///home/necolt/workspace/univm/examples/sum#0.1.0",
+            "license": null,
+            "license_file": null,
+            "description": null,
+            "source": null,
+            "dependencies": [],
+            "targets": [
+                {
+                    "kind": [
+                        "bin"
+                    ],
+                    "crate_types": [
+                        "bin"
+                    ],
+                    "name": "sum",
+                    "src_path": "/home/necolt/workspace/univm/examples/sum/src/main.rs",
+                    "edition": "2024",
+                    "doc": true,
+                    "doctest": false,
+                    "test": true
+                }
+            ],
+            "features": {},
+            "manifest_path": "/home/necolt/workspace/univm/examples/sum/Cargo.toml",
+            "metadata": null,
+            "publish": null,
+            "authors": [],
+            "categories": [],
+            "keywords": [],
+            "readme": null,
+            "repository": null,
+            "homepage": null,
+            "documentation": null,
+            "edition": "2024",
+            "links": null,
+            "default_run": null,
+            "rust_version": null
+        }
+    ],
+    "workspace_members": [
+        "path+file:///home/necolt/workspace/univm/examples/sum/guest#zkvm-guest@0.1.0",
+        "path+file:///home/necolt/workspace/univm/examples/sum/guest/methods#zkvm-guest-methods@0.1.0",
+        "path+file:///home/necolt/workspace/univm/examples/sum#0.1.0"
+    ],
+    "workspace_default_members": [
+        "path+file:///home/necolt/workspace/univm/examples/sum/guest/methods#zkvm-guest-methods@0.1.0"
+    ],
+    "resolve": null,
+    "target_directory": "/home/necolt/workspace/univm/examples/sum/target",
+    "build_directory": "/home/necolt/workspace/univm/examples/sum/target",
+    "version": 1,
+    "workspace_root": "/home/necolt/workspace/univm/examples/sum",
+    "metadata": null
+}

@@ -1,7 +1,8 @@
 use std::{marker::PhantomData, rc::Rc};
 
 use risc0_zkvm::{
-    Digest, Executor, ExecutorEnv, Prover, Receipt, SessionInfo, default_executor, default_prover,
+    Digest, Executor, ExecutorEnv, Prover, ProverOpts, Receipt, SessionInfo, default_executor,
+    default_prover,
 };
 use univm_interface::{ExecutionReport, GuestProgram, Proof, Zkvm, ZkvmMethods};
 use univm_io::Io;

@@ -5,6 +5,7 @@ edition.workspace = true
 
 [dependencies]
 univm-interface = { workspace = true }
+cargo_metadata = { workspace = true }
 
 [features]
 dockerized = []

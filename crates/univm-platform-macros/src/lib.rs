@@ -79,9 +79,6 @@ fn emit_entrypoint(
 
             let output = #cloned_ident(input);
         }
-
-        #[cfg(not(target_os = "zkvm"))]
-        #fn_vis fn #fn_name<T: univm_interface::Zkvm>() {}
     })
 }
 

@@ -6,7 +6,3 @@ edition.workspace = true
 [dependencies]
 univm-platform-macros = { workspace = true }
 univm-io = { workspace = true }
-cfg-if = { workspace = true }
-
-[target.'cfg(all(target_os = "zkvm", target_vendor = "risc0"))'.dependencies]
-univm-platform-risc0 = { workspace = true }

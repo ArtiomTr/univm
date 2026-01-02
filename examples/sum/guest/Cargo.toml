@@ -3,15 +3,6 @@ name = "zkvm-guest"
 version = "0.1.0"
 edition = "2024"
 
-[lib]
-name = "zkvm_guest_lib"
-
-[dependencies]
-univm-platform = { workspace = true }
-univm-io = { workspace = true, features = ["ssz"] }
-
 [build-dependencies]
 univm-build = { workspace = true }
-
-[target.'cfg(not(target_os = "zkvm"))'.build-dependencies]
 univm-risc0 = { workspace = true }

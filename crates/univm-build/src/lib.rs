@@ -1,15 +1,17 @@
 use std::{
     env,
     ffi::OsStr,
-    fs::File,
+    fs::{self, File},
     io::Write,
     path::{Path, PathBuf},
 };
 
+use cargo_metadata::MetadataCommand;
 use univm_interface::compiler::{CompilationResult, Compiler};
 
 pub struct BuildOptions {
     compilers: Vec<Box<dyn Compiler>>,
+    crates: Vec<PathBuf>,
 }
 
 fn get_out_dir() -> PathBuf {
@@ -39,39 +41,60 @@ fn get_out_dir() -> PathBuf {
     }
 }
 
+const CACHEDIR_TAG_CONTENT: &'static str = r#"Signature: 8a477f597d28d172789f06886806bc55
+# This file is a cache directory tag created by univm compiler.
+# For information about cache directory tags, see:
+#	http://www.brynosaurus.com/cachedir/"#;
+
 impl BuildOptions {
     pub fn new() -> Self {
         BuildOptions {
             compilers: Vec::new(),
+            crates: Vec::new(),
         }
     }
 
-    pub fn add(mut self, compiler: impl Compiler + 'static) -> Self {
+    pub fn add_crate(mut self, path: impl AsRef<Path>) -> Self {
+        let path = path.as_ref();
+
+        if path.is_absolute() {
+            self.crates.push(path.to_path_buf());
+        } else {
+            let manifest_dir: PathBuf = std::env::var("CARGO_MANIFEST_DIR").unwrap().into();
+
+            self.crates.push(manifest_dir.join(path));
+        }
+
+        self
+    }
+
+    pub fn zkvm(mut self, compiler: impl Compiler + 'static) -> Self {
         self.compilers.push(Box::new(compiler));
         self
     }
 
-    pub fn build(self) {
-        if self.compilers.len() == 0 {
-            panic!("No compilers installed - please choose at least one zkvm");
-        }
-
-        if std::env::var("CARGO_CFG_TARGET_OS").unwrap() == "zkvm" {
-            // risc0::Risc0BuildOptions::new().build();
-            return;
-        }
-
+    fn build_crate(&self, crate_path: &Path) {
         let target_dir = get_out_dir();
+
+        let temp_artifacts_path = crate_path.join(".univm");
+        fs::create_dir_all(&temp_artifacts_path).unwrap();
+
+        {
+            let mut ignorefile = File::create(temp_artifacts_path.join(".gitignore")).unwrap();
+            writeln!(ignorefile, "*").unwrap();
+        }
+
+        {
+            let mut cachedir = File::create(temp_artifacts_path.join("CACHEDIR.TAG")).unwrap();
+            writeln!(cachedir, "{}", CACHEDIR_TAG_CONTENT).unwrap();
+        }
 
         let vms = self
             .compilers
             .iter()
             .map(|compiler| {
                 compiler
-                    .compile(
-                        &Path::new(&std::env::var("CARGO_MANIFEST_DIR").unwrap()),
-                        &target_dir,
-                    )
+                    .compile(crate_path, &temp_artifacts_path, &target_dir)
                     .unwrap()
             })
             .collect::<Vec<_>>();
@@ -180,6 +203,20 @@ impl BuildOptions {
             )
         )
         .unwrap();
+    }
+
+    pub fn build(self) {
+        if self.compilers.len() == 0 {
+            panic!("No compilers installed - please choose at least one zkvm");
+        }
+
+        if self.crates.len() == 0 {
+            panic!("No crates selected to build - please provide at least one crate to build");
+        }
+
+        for c in self.crates.iter() {
+            self.build_crate(&c)
+        }
     }
 }
 
