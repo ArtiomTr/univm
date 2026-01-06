@@ -1,4 +1,4 @@
-use std::{fs::File, io::Write, path::Path};
+use std::path::Path;
 
 use risc0_build::GuestOptions;
 use univm_interface::compiler::{CompilationResult, Compiler};
@@ -9,15 +9,6 @@ pub struct Risc0Compiler;
 impl Compiler for Risc0Compiler {
     fn compile(&self, crate_path: &Path, target_path: &Path) -> Result<CompilationResult, ()> {
         let package = risc0_build::get_package(crate_path);
-
-        {
-            let mut platform_api = File::create(target_path.join("platform-api.rs")).unwrap();
-            writeln!(
-                platform_api,
-                "use unvim_platform_risc0::{{__zkvm_entrypoint}};"
-            )
-            .unwrap();
-        }
 
         let entries =
             risc0_build::build_package(&package, &target_path, GuestOptions::default()).unwrap();
@@ -47,7 +38,7 @@ impl Compiler for Risc0Compiler {
                     }}
                 }}
 
-                impl GuestProgram<univm_risc0::Risc0> for [<$base_program_name Risc0>] {{
+                impl univm_interface::GuestProgram<univm_risc0::Risc0> for [<$base_program_name Risc0>] {{
                     type Input = $input;
                     type Output = $output;
 
@@ -59,7 +50,7 @@ impl Compiler for Risc0Compiler {
                         self.0.prove(zkvm, input)
                     }}
 
-                    fn verify(&self, zkvm: &univm_risc0::Risc0, proof: univm_risc0::Risc0Proof) -> bool {{
+                    fn verify(&self, zkvm: &univm_risc0::Risc0, proof: &univm_risc0::Risc0Proof) -> bool {{
                         self.0.verify(zkvm, proof)
                     }}
                 }}"#
@@ -68,11 +59,16 @@ impl Compiler for Risc0Compiler {
     }
 
     fn emit_platform(&self) -> Result<String, ()> {
-        format!("#[cfg()]");
+        Ok(PLATFORM_CODE.to_owned())
     }
 }
 
 const PLATFORM_CODE: &'static str = r#"
-#[cfg(all(target_os = "zkvm", target_vendor = "risc0", not(zkvm_pico)))]
+#[cfg_zkvm(risc0)]
+#[allow(unused)]
+pub type UniVMCurrentPlatform = univm_platform_risc0::Risc0Platform;
 
+#[cfg_zkvm(risc0)]
+#[allow(unused)]
+pub use univm_platform_risc0::__univm_entrypoint;
 "#;

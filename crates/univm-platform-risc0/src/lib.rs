@@ -1,35 +1,23 @@
 use risc0_zkvm::guest::env;
-use univm_platform_base::Platform;
+use univm_platform::Platform;
 
 pub struct Risc0Platform;
 
 impl Platform for Risc0Platform {
     fn read_input() -> Vec<u8> {
-        todo!()
+        let mut len = [0u8; 4];
+        env::read_slice(&mut len);
+
+        let len = u32::from_be_bytes(len) as usize;
+        let mut buffer = vec![0u8; len];
+        env::read_slice(&mut buffer);
+
+        buffer
     }
 
     fn write_output(bytes: &[u8]) {
-        todo!()
+        env::commit_slice(bytes);
     }
 }
 
-#[macro_export]
-macro_rules! __zkvm_entrypoint {
-    ($entry_name: path) => {
-        #[!no_main]
-
-        // Copy-pasted risc0_zkvm::entry, just to additionally provide #[!no_main].
-
-        // Type check the given path
-        const ZKVM_ENTRY: fn() = $path;
-
-        // Include generated main in a module so we don't conflict
-        // with any other definitions of "main" in this file.
-        mod zkvm_generated_main {
-            #[no_mangle]
-            fn main() {
-                super::ZKVM_ENTRY()
-            }
-        }
-    };
-}
+pub use risc0_zkvm::entry as __univm_entrypoint;

@@ -1,4 +1,3 @@
-use cfg_if::cfg_if;
 use univm_interface::compiler::Compiler;
 
 mod zkvm;

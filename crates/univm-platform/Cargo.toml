@@ -6,3 +6,4 @@ edition.workspace = true
 [dependencies]
 univm-platform-macros = { workspace = true }
 univm-io = { workspace = true }
+cfg-zkvm = { workspace = true }

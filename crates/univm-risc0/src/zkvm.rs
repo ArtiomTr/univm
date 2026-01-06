@@ -1,8 +1,7 @@
 use std::{marker::PhantomData, rc::Rc};
 
 use risc0_zkvm::{
-    Digest, Executor, ExecutorEnv, Prover, ProverOpts, Receipt, SessionInfo, default_executor,
-    default_prover,
+    Digest, Executor, ExecutorEnv, Prover, Receipt, SessionInfo, default_executor, default_prover,
 };
 use univm_interface::{ExecutionReport, GuestProgram, Proof, Zkvm, ZkvmMethods};
 use univm_io::Io;
@@ -71,7 +70,12 @@ impl<TInput, TOutput, TIo: Io<TInput> + Io<TOutput>> GuestProgram<Risc0>
         input: Self::Input,
     ) -> Result<(Self::Output, Risc0ExecutionReport), ()> {
         let bytes = self.io.serialize(input).unwrap();
-        let env = ExecutorEnv::builder().write_slice(&bytes).build().unwrap();
+        let len: u32 = bytes.len() as u32;
+        let env = ExecutorEnv::builder()
+            .write_slice(&len.to_be_bytes())
+            .write_slice(&bytes)
+            .build()
+            .unwrap();
 
         let info = zkvm.executor.execute(env, &self.elf).unwrap();
 

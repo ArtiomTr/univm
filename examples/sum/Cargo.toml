@@ -7,6 +7,9 @@ univm-platform = { path = "../../crates/univm-platform" }
 univm-io = { path = "../../crates/univm-io" }
 univm-build = { path = "../../crates/univm-build" }
 univm-risc0 = { path = "../../crates/univm-risc0" }
+univm-platform-risc0 = { path = "../../crates/univm-platform-risc0" }
+univm-interface = { path = "../../crates/univm-interface" }
+cfg-zkvm = { path = "../../crates/cfg-zkvm" }
 
 [package]
 name = "sum"
@@ -14,4 +17,6 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-# zkvm-guest = { path = "./guest" }
+zkvm-guest = { path = "./guest" }
+univm-interface = { workspace = true }
+univm-risc0 = { workspace = true }

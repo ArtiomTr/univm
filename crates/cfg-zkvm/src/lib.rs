@@ -8,6 +8,7 @@ pub fn config_values() {
     println!("cargo::rustc-check-cfg=cfg(pico, values(none()))");
     println!("cargo::rustc-check-cfg=cfg(ziren, values(none()))");
     println!("cargo::rustc-check-cfg=cfg(zisk, values(none()))");
+    println!("cargo::rustc-check-cfg=cfg(zkvm_pico, values(none()))");
     println!(
         r#"cargo::rustc-check-cfg=cfg(zkvm, values("risc0", "sp1", "pico", "ziren", "zisk"))"#
     );

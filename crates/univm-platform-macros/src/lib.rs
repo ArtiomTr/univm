@@ -1,6 +1,8 @@
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{Ident, ItemFn, parse::Parse, parse_macro_input, spanned::Spanned};
+use syn::{
+    Ident, ItemFn, ReturnType, parse::Parse, parse_macro_input, parse_quote, spanned::Spanned,
+};
 
 struct EntrypointAttributes {
     io: syn::Ident,
@@ -48,25 +50,34 @@ fn emit_entrypoint(
         }
     };
 
+    let output = match item.sig.output {
+        ReturnType::Default => parse_quote!(()),
+        ReturnType::Type(_, ref t) => t.clone(),
+    };
+
     let io = attr.io;
 
-    let fn_name = &item.sig.ident;
     let fn_body = &item.block;
     let fn_vis = &item.vis;
     let fn_attrs = &item.attrs;
-    let fn_sig = &item.sig;
 
     let cloned_sig = {
         let mut s = item.sig.clone();
 
-        s.ident = Ident::new(format!("__{}", s.ident.to_string()).as_str(), s.span());
+        s.ident = Ident::new(
+            format!("__univm_{}", s.ident.to_string()).as_str(),
+            s.span(),
+        );
 
         s
     };
 
+    let fn_name = item.sig.ident;
     let cloned_ident = &cloned_sig.ident;
 
-    Ok(quote! {
+    let result = quote! {
+        include!(concat!(env!("CARGO_MANIFEST_DIR"), "/.univm/platform.rs"));
+
         #[cfg(target_os = "zkvm")]
         #(#fn_attrs)*
         #cloned_sig {
@@ -74,12 +85,23 @@ fn emit_entrypoint(
         }
 
         #[cfg(target_os = "zkvm")]
-        #fn_vis #fn_sig {
-            let input = univm_platform::read::<#input>(#io);
+        #fn_vis fn #fn_name() {
+            let input = univm_platform::read::<UniVMCurrentPlatform, #input>(#io);
 
             let output = #cloned_ident(input);
+
+            univm_platform::commit::<UniVMCurrentPlatform, #output>(#io, output);
         }
-    })
+
+        #[cfg(not(target_os = "zkvm"))]
+        #fn_vis fn #fn_name() {
+            panic!("Not implemented - cannot call zkvm function from");
+        }
+    };
+
+    println!("debug: {result}");
+
+    Ok(result)
 }
 
 #[proc_macro_attribute]

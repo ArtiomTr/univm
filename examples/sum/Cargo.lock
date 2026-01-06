@@ -589,13 +589,37 @@ dependencies = [
 ]
 
 [[package]]
+name = "cargo-platform"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "87a0c0e6148f11f01f32650a2ea02d532b2ad4e81d8bd41e6e565b5adc5e6082"
+dependencies = [
+ "serde",
+ "serde_core",
+]
+
+[[package]]
 name = "cargo_metadata"
 version = "0.19.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dd5eb614ed4c27c5d706420e4320fbe3216ab31fa1c33cd8246ac36dae4479ba"
 dependencies = [
  "camino",
- "cargo-platform",
+ "cargo-platform 0.1.9",
+ "semver",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.17",
+]
+
+[[package]]
+name = "cargo_metadata"
+version = "0.23.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ef987d17b0a113becdd19d3d0022d04d7ef41f9efe4f3fb63ac44ba61df3ade9"
+dependencies = [
+ "camino",
+ "cargo-platform 0.3.2",
  "semver",
  "serde",
  "serde_json",
@@ -619,6 +643,24 @@ name = "cfg-if"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9330f8b2ff13f34540b44e946ef35111825727b38d33286ef986142615121801"
+
+[[package]]
+name = "cfg-zkvm"
+version = "0.1.0"
+dependencies = [
+ "cfg-zkvm-macro",
+]
+
+[[package]]
+name = "cfg-zkvm-macro"
+version = "0.1.0"
+dependencies = [
+ "proc-macro-error",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.112",
+ "thiserror 2.0.17",
+]
 
 [[package]]
 name = "cfg_aliases"
@@ -2935,6 +2977,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "proc-macro-error"
+version = "1.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "da25490ff9892aab3fcf7c36f08cfb902dd3e71ca0f9f9517bea02a73a5ce38c"
+dependencies = [
+ "proc-macro-error-attr",
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+ "version_check",
+]
+
+[[package]]
+name = "proc-macro-error-attr"
+version = "1.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a1be40180e52ecc98ad80b184934baf3d0d29f979574e439af5a55274b35f869"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "version_check",
+]
+
+[[package]]
 name = "proc-macro2"
 version = "1.0.104"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3353,7 +3419,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e744682b661f2a022fddffddfe242608f8b194e839d9e83ddbb3378974942241"
 dependencies = [
  "anyhow",
- "cargo_metadata",
+ "cargo_metadata 0.19.2",
  "derive_builder",
  "dirs",
  "docker-generate",
@@ -4235,6 +4301,11 @@ checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
 [[package]]
 name = "sum"
 version = "0.1.0"
+dependencies = [
+ "univm-interface",
+ "univm-risc0",
+ "zkvm-guest",
+]
 
 [[package]]
 name = "syn"
@@ -4720,6 +4791,7 @@ checksum = "ebc1c04c71510c7f702b52b7c350734c9ff1295c464a03335b00bb84fc54f853"
 name = "univm-build"
 version = "0.1.0"
 dependencies = [
+ "cargo_metadata 0.23.1",
  "univm-interface",
 ]
 
@@ -4742,15 +4814,10 @@ dependencies = [
 name = "univm-platform"
 version = "0.1.0"
 dependencies = [
- "cfg-if",
+ "cfg-zkvm",
  "univm-io",
  "univm-platform-macros",
- "univm-platform-risc0",
 ]
-
-[[package]]
-name = "univm-platform-base"
-version = "0.1.0"
 
 [[package]]
 name = "univm-platform-macros"
@@ -4766,14 +4833,14 @@ name = "univm-platform-risc0"
 version = "0.1.0"
 dependencies = [
  "risc0-zkvm",
- "univm-platform-base",
+ "univm-platform",
 ]
 
 [[package]]
 name = "univm-risc0"
 version = "0.1.0"
 dependencies = [
- "cfg-if",
+ "cargo_metadata 0.23.1",
  "risc0-build",
  "risc0-zkvm",
  "univm-interface",
@@ -5391,7 +5458,10 @@ name = "zkvm-guest"
 version = "0.1.0"
 dependencies = [
  "univm-build",
+ "univm-interface",
+ "univm-io",
  "univm-risc0",
+ "zkvm-guest-methods",
 ]
 
 [[package]]
@@ -5399,9 +5469,12 @@ name = "zkvm-guest-methods"
 version = "0.1.0"
 dependencies = [
  "bls12_381",
+ "getrandom 0.2.16",
  "sha2 0.10.9 (git+https://github.com/grandinetech/universal-precompiles.git?tag=sha2-v0.10.9-up.2)",
+ "ssz",
  "univm-io",
  "univm-platform",
+ "univm-platform-risc0",
 ]
 
 [[package]]

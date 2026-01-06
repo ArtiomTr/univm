@@ -4474,13 +4474,10 @@ dependencies = [
 name = "univm-platform"
 version = "0.1.0"
 dependencies = [
+ "cfg-zkvm",
  "univm-io",
  "univm-platform-macros",
 ]
-
-[[package]]
-name = "univm-platform-base"
-version = "0.1.0"
 
 [[package]]
 name = "univm-platform-macros"
@@ -4496,7 +4493,7 @@ name = "univm-platform-risc0"
 version = "0.1.0"
 dependencies = [
  "risc0-zkvm",
- "univm-platform-base",
+ "univm-platform",
 ]
 
 [[package]]
@@ -4504,7 +4501,6 @@ name = "univm-risc0"
 version = "0.1.0"
 dependencies = [
  "cargo_metadata 0.23.1",
- "cfg-if",
  "risc0-build",
  "risc0-zkvm",
  "univm-interface",

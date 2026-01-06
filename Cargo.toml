@@ -3,7 +3,6 @@ members = [
     "crates/univm-build",
     "crates/univm-interface",
     "crates/univm-platform",
-    "crates/univm-platform-base",
     "crates/univm-platform-risc0",
     "crates/univm-io",
     "crates/univm-platform-macros",

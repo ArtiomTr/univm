@@ -6,7 +6,6 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use cargo_metadata::MetadataCommand;
 use univm_interface::compiler::{CompilationResult, Compiler};
 
 pub struct BuildOptions {
@@ -73,33 +72,42 @@ impl BuildOptions {
         self
     }
 
-    fn build_crate(&self, crate_path: &Path) {
-        let target_dir = get_out_dir();
-
+    fn emit_platform(&self, crate_path: &Path) {
         let temp_artifacts_path = crate_path.join(".univm");
         fs::create_dir_all(&temp_artifacts_path).unwrap();
 
-        {
-            let mut ignorefile = File::create(temp_artifacts_path.join(".gitignore")).unwrap();
-            writeln!(ignorefile, "*").unwrap();
-        }
+        let mut ignorefile = File::create(temp_artifacts_path.join(".gitignore")).unwrap();
+        writeln!(ignorefile, "*").unwrap();
 
-        {
-            let mut cachedir = File::create(temp_artifacts_path.join("CACHEDIR.TAG")).unwrap();
-            writeln!(cachedir, "{}", CACHEDIR_TAG_CONTENT).unwrap();
+        let mut cachedir = File::create(temp_artifacts_path.join("CACHEDIR.TAG")).unwrap();
+        writeln!(cachedir, "{}", CACHEDIR_TAG_CONTENT).unwrap();
+
+        let mut platform_code = File::create(temp_artifacts_path.join("platform.rs")).unwrap();
+        writeln!(platform_code, "mod __platform_impl {{").unwrap();
+        writeln!(platform_code, "use univm_platform::cfg_zkvm;").unwrap();
+        for vm in self.compilers.iter() {
+            let platform = vm.emit_platform().unwrap();
+            write!(platform_code, "{}", platform).unwrap();
         }
+        writeln!(platform_code, "}}").unwrap();
+        writeln!(platform_code, "use __platform_impl::*;").unwrap();
+    }
+
+    fn build_crate(&self, crate_path: &Path) {
+        self.emit_platform(crate_path);
+
+        let target_dir = get_out_dir();
+
+        let out_dir = std::env::var("OUT_DIR").unwrap();
+        let out_dir = Path::new(&out_dir);
 
         let vms = self
             .compilers
             .iter()
-            .map(|compiler| {
-                compiler
-                    .compile(crate_path, &temp_artifacts_path, &target_dir)
-                    .unwrap()
-            })
+            .map(|compiler| compiler.compile(crate_path, &target_dir).unwrap())
             .collect::<Vec<_>>();
 
-        let mut generated_methods = File::create(target_dir.join("methods.rs")).unwrap();
+        let mut generated_methods = File::create(out_dir.join("methods.rs")).unwrap();
         writeln!(
             generated_methods,
             r#"macro_rules! impl_program {{
@@ -107,9 +115,9 @@ impl BuildOptions {
                     univm_interface::compiler::paste! {{
                         {concrete_program_impls}
                         
-                        enum $base_program_name {{
+                        pub enum $base_program_name {{
                             {programs}
-                        }};
+                        }}
 
                         {builder_impls}
 
@@ -117,11 +125,11 @@ impl BuildOptions {
                             type Input = $input;
                             type Output = $output;
 
-                            fn execute(&self, zkvm: &univm_interface::UniVM, input: Self::Input) -> Result<(Self::Output, T::ExecutionReport), ()> {{
+                            fn execute(&self, zkvm: &univm_interface::UniVM, input: Self::Input) -> Result<(Self::Output, univm_interface::UniExecutionReport), ()> {{
                                 {univm_execute}
                             }}
 
-                            fn prove(&self, zkvm: &univm_interface::UniVM, input: Self::Input) -> Result<(Self::Output, T::Proof, T::ExecutionReport), ()> {{
+                            fn prove(&self, zkvm: &univm_interface::UniVM, input: Self::Input) -> Result<(Self::Output, univm_interface::UniProof, univm_interface::UniExecutionReport), ()> {{
                                 {univm_prove}
                             }}
 
@@ -129,13 +137,7 @@ impl BuildOptions {
                                 {univm_verify}
                             }}
                         }}
-
-                        impl univm_interface::GuestProgramBuilder<univm_interface::UniVM> for $base_program_name {{
-                            fn init() -> impl univm_interface::GuestProgram {{
-                                $base_program_name::init()
-                            }}
-                        }}
-                    }};
+                    }}
                 }};
             }}"#,
             concrete_program_impls = vms
@@ -157,17 +159,19 @@ impl BuildOptions {
                          program_name,
                          ..
                      }| format!(r#"impl univm_interface::GuestProgramBuilder<{vm_full_name}> for $base_program_name {{
-                            fn init() -> impl univm_interface::GuestProgram<{vm_full_name}> {{
-                                {program_name}
+                            type Program = {program_name};
+
+                            fn init() -> Self::Program {{
+                                {program_name}::init()
                             }}
                         }}"#))
                     .collect::<String>(),
             univm_execute = format!(
-                r#"match self {{
+                r#"match &self {{
                     {}
                 }}"#,
                 vms.iter().map(|CompilationResult { vm_name, vm_full_name, .. }| format!(
-                    r#"Self::{vm_name}(ref program) => {{
+                    r#"Self::{vm_name}(program) => {{
                         let zkvm = zkvm.downcast_ref::<{vm_full_name}>().unwrap();
 
                         let (output, report) = program.execute(zkvm, input)?;
@@ -176,26 +180,26 @@ impl BuildOptions {
                     }}"#)).collect::<String>()
             ),
             univm_prove = format!(
-                r#"match self {{
+                r#"match &self {{
                     {}
                 }}"#,
                 vms.iter().map(|CompilationResult { vm_name, vm_full_name, .. }| format!(
-                    r#"Self::{vm_name}(ref program) => {{
+                    r#"Self::{vm_name}(program) => {{
                         let zkvm = zkvm.downcast_ref::<{vm_full_name}>().unwrap();
 
                         let (output, proof, report) = program.prove(zkvm, input)?;
 
-                        Ok((output, UniProof::new(proof), Box::new(report)))
+                        Ok((output, univm_interface::UniProof::new(proof), Box::new(report)))
                     }}"#)).collect::<String>()
             ),
             univm_verify = format!(
-                r#"match self {{
+                r#"match &self {{
                     {}
                 }}"#,
                 vms.iter().map(|CompilationResult { vm_name, vm_full_name, .. }| format!(
-                    r#"Self::{vm_name}(ref program) => {{
+                    r#"Self::{vm_name}(program) => {{
                         let zkvm = zkvm.downcast_ref::<{vm_full_name}>().unwrap();
-                        let proof = proof.downcast_ref::<{vm_full_name}::Proof>().unwrap();
+                        let proof = proof.downcast_ref::<<{vm_full_name} as univm_interface::Zkvm>::Proof>().unwrap();
 
                         program.verify(zkvm, proof)
                     }}"#

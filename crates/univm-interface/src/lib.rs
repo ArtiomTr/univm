@@ -19,8 +19,10 @@ pub trait Zkvm: ZkvmMethods {
     type ExecutionReport: ExecutionReport;
 }
 
-pub trait GuestProgramBuilder<T: Zkvm> {
-    fn init() -> impl GuestProgram<T>;
+pub trait GuestProgramBuilder<V: Zkvm> {
+    type Program: GuestProgram<V>;
+
+    fn init() -> Self::Program;
 }
 
 pub trait GuestProgram<T: Zkvm> {
@@ -57,6 +59,8 @@ impl UniProof {
 }
 
 impl Proof for UniProof {}
+
+pub type UniExecutionReport = Box<dyn ExecutionReport>;
 
 pub struct UniVM(Box<dyn ZkvmMethods>);
 

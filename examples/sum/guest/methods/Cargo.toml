@@ -9,9 +9,16 @@ name = "zkvm_guest_methods_lib"
 [dependencies]
 univm-platform = { workspace = true }
 univm-io = { workspace = true, features = ["ssz"] }
-bls12_381 = { git = "https://github.com/grandinetech/universal-precompiles.git", tag = "bls12_381-6bb9695-up.2", features = [
-    "zkvm-risc0",
-] }
-sha2 = { git = "https://github.com/grandinetech/universal-precompiles.git", tag = "sha2-v0.10.9-up.2", features = [
-    "zkvm-risc0",
-] }
+getrandom = { version = "0.2", features = ["custom"] }
+ssz = { git = "https://github.com/grandinetech/grandine", branch = "develop", package = "ssz" }
+univm-platform-risc0 = { workspace = true }
+
+[dependencies.bls12_381]
+git = "https://github.com/grandinetech/universal-precompiles.git"
+tag = "bls12_381-6bb9695-up.2"
+features = ["zkvm-risc0"]
+
+[dependencies.sha2]
+git = "https://github.com/grandinetech/universal-precompiles.git"
+tag = "sha2-v0.10.9-up.2"
+features = ["zkvm-risc0"]

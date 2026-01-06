@@ -3,6 +3,12 @@ name = "zkvm-guest"
 version = "0.1.0"
 edition = "2024"
 
+[dependencies]
+zkvm-guest-methods = { path = "./methods" }
+univm-io = { workspace = true, features = ["ssz"] }
+univm-risc0 = { workspace = true }
+univm-interface = { workspace = true }
+
 [build-dependencies]
 univm-build = { workspace = true }
 univm-risc0 = { workspace = true }
