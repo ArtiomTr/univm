@@ -1,0 +1,11 @@
+error: unknown zkvm "dummy" - valid options are `risc0`, `sp1`, `pico`, `ziren` and `zisk`.
+ --> tests/fail/02_invalid_zkvm_identifier.rs:9:19
+  |
+9 | #[cfg_zkvm(zkvm = "dummy")]
+  |                   ^^^^^^^
+
+error: unknown zkvm "some-cool-zkvm" - valid options are `risc0`, `sp1`, `pico`, `ziren` and `zisk`.
+  --> tests/fail/02_invalid_zkvm_identifier.rs:12:41
+   |
+12 | #[cfg_zkvm(any(feature = "cool", zkvm = "some-cool-zkvm"))]
+   |                                         ^^^^^^^^^^^^^^^^

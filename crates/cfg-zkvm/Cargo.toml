@@ -3,11 +3,5 @@ name = "cfg-zkvm"
 version = "0.1.0"
 edition.workspace = true
 
-[lib]
-proc-macro = true
-
 [dependencies]
-syn = { workspace = true, features = ["full"] }
-quote = { workspace = true }
-proc-macro2 = { workspace = true }
-thiserror = { workspace = true }
+cfg-zkvm-macro = { workspace = true }

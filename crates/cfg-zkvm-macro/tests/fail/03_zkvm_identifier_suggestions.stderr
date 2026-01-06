@@ -1,0 +1,71 @@
+error: unknown zkvm "r0" - maybe you wanted to use `risc0`?
+ --> tests/fail/03_zkvm_identifier_suggestions.rs:8:19
+  |
+8 | #[cfg_zkvm(zkvm = "r0")]
+  |                   ^^^^
+
+error: unknown zkvm "RISC0" - maybe you wanted to use `risc0`?
+  --> tests/fail/03_zkvm_identifier_suggestions.rs:11:19
+   |
+11 | #[cfg_zkvm(zkvm = "RISC0")]
+   |                   ^^^^^^^
+
+error: unknown zkvm " riSc0   " - maybe you wanted to use `risc0`?
+  --> tests/fail/03_zkvm_identifier_suggestions.rs:14:19
+   |
+14 | #[cfg_zkvm(zkvm = " riSc0   ")]
+   |                   ^^^^^^^^^^^
+
+error: unknown zkvm "succinct" - maybe you wanted to use `sp1`?
+  --> tests/fail/03_zkvm_identifier_suggestions.rs:17:19
+   |
+17 | #[cfg_zkvm(zkvm = "succinct")]
+   |                   ^^^^^^^^^^
+
+error: unknown zkvm "SP1" - maybe you wanted to use `sp1`?
+  --> tests/fail/03_zkvm_identifier_suggestions.rs:20:19
+   |
+20 | #[cfg_zkvm(zkvm = "SP1")]
+   |                   ^^^^^
+
+error: unknown zkvm "brevis" - maybe you wanted to use `pico`?
+  --> tests/fail/03_zkvm_identifier_suggestions.rs:23:19
+   |
+23 | #[cfg_zkvm(zkvm = "brevis")]
+   |                   ^^^^^^^^
+
+error: unknown zkvm "brevis-pico" - maybe you wanted to use `pico`?
+  --> tests/fail/03_zkvm_identifier_suggestions.rs:26:19
+   |
+26 | #[cfg_zkvm(zkvm = "brevis-pico")]
+   |                   ^^^^^^^^^^^^^
+
+error: unknown zkvm "picovm" - maybe you wanted to use `pico`?
+  --> tests/fail/03_zkvm_identifier_suggestions.rs:29:19
+   |
+29 | #[cfg_zkvm(zkvm = "picovm")]
+   |                   ^^^^^^^^
+
+error: unknown zkvm "pico-vm" - maybe you wanted to use `pico`?
+  --> tests/fail/03_zkvm_identifier_suggestions.rs:32:19
+   |
+32 | #[cfg_zkvm(zkvm = "pico-vm")]
+   |                   ^^^^^^^^^
+
+error: unknown zkvm "PICO" - maybe you wanted to use `pico`?
+  --> tests/fail/03_zkvm_identifier_suggestions.rs:35:19
+   |
+35 | #[cfg_zkvm(zkvm = "PICO")]
+   |                   ^^^^^^
+
+error: unknown zkvm "zkm" - maybe you wanted to use `ziren`?
+  --> tests/fail/03_zkvm_identifier_suggestions.rs:38:19
+   |
+38 | #[cfg_zkvm(zkvm = "zkm")]
+   |                   ^^^^^
+
+error: unknown zkvm "ZISK" - maybe you wanted to use `zisk`?
+  --> tests/fail/03_zkvm_identifier_suggestions.rs:41:19
+   |
+41 | #[cfg_zkvm(zkvm = "ZISK")]
+   |                   ^^^^^^

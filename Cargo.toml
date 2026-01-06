@@ -9,6 +9,7 @@ members = [
     "crates/univm-platform-macros",
     "crates/univm-risc0",
     "crates/cfg-zkvm",
+    "crates/cfg-zkvm-macro",
 ]
 resolver = "3"
 
@@ -24,6 +25,8 @@ univm-platform-risc0 = { path = "./crates/univm-platform-risc0" }
 univm-platform-macros = { path = "./crates/univm-platform-macros" }
 univm-risc0 = { path = "./crates/univm-risc0" }
 univm-io = { path = "./crates/univm-io" }
+cfg-zkvm-macro = { path = "./crates/cfg-zkvm-macro" }
+cfg-zkvm = { path = "./crates/cfg-zkvm" }
 
 risc0-zkvm = { version = "3.0.4" }
 risc0-build = { version = "3.0.4" }
@@ -37,3 +40,5 @@ cfg-if = { version = "1.0.4" }
 paste = { version = "1.0.15" }
 cargo_metadata = "0.23.1"
 cfg_aliases = "0.2.1"
+trybuild = "1.0.114"
+proc-macro-error = "1.0.4"

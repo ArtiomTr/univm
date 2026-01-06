@@ -1,125 +1,42 @@
-use std::str::FromStr;
+use std::env;
 
-use proc_macro::TokenStream;
-use quote::quote;
-use syn::{Expr, Lit, parse_macro_input, spanned::Spanned};
-use thiserror::Error;
+pub use cfg_zkvm_macro::cfg_zkvm;
 
-#[proc_macro_attribute]
-pub fn cfg_zkvm(attr: TokenStream, item: TokenStream) -> TokenStream {
-    let attr = parse_macro_input!(attr as Expr);
-    let item: proc_macro2::TokenStream = item.into();
+pub fn config_values() {
+    println!("cargo::rustc-check-cfg=cfg(risc0, values(none()))");
+    println!("cargo::rustc-check-cfg=cfg(sp1, values(none()))");
+    println!("cargo::rustc-check-cfg=cfg(pico, values(none()))");
+    println!("cargo::rustc-check-cfg=cfg(ziren, values(none()))");
+    println!("cargo::rustc-check-cfg=cfg(zisk, values(none()))");
+    println!(
+        r#"cargo::rustc-check-cfg=cfg(zkvm, values("risc0", "sp1", "pico", "ziren", "zisk"))"#
+    );
 
-    let transformed = transform_expr(attr).unwrap_or_else(|e| e.into_compile_error());
+    let target_os = env::var("CARGO_CFG_TARGET_OS")
+        .expect("config_values() function is expected to be executed in build.rs file");
+    let target_vendor = env::var("CARGO_CFG_TARGET_VENDOR")
+        .expect("config_values() function is expected to be executed in build.rs file");
+    let cfg_zkvm_pico = env::var("CARGO_CFG_ZKVM_PICO").is_ok();
 
-    quote! {
-        #[cfg(#transformed)]
-        #item
-    }
-    .into()
-}
+    let zkvm = match (target_os.as_str(), target_vendor.as_str(), cfg_zkvm_pico) {
+        ("zkvm", "risc0", false) => "risc0",
+        ("zkvm", "succinct", false) => "sp1",
+        ("zkvm", "risc0", true) => "pico",
+        ("zkvm", "zkm", false) => "ziren",
+        ("zkvm", "zisk", false) => "zisk",
 
-#[derive(Debug, Clone, Copy)]
-enum ZkvmIdent {
-    Risc0,
-    Sp1,
-    Pico,
-    Ziren,
-    Zisk,
-}
-
-#[derive(Debug, Error)]
-enum ParseZkvmIdentError {
-    #[error("unknown zkvm {0}")]
-    UnknownZkvm(String),
-}
-
-impl FromStr for ZkvmIdent {
-    type Err = ParseZkvmIdentError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "risc0" => Ok(ZkvmIdent::Risc0),
-            "sp1" => Ok(ZkvmIdent::Sp1),
-            "pico" => Ok(ZkvmIdent::Pico),
-            "ziren" => Ok(ZkvmIdent::Ziren),
-            "zisk" => Ok(ZkvmIdent::Zisk),
-            v => Err(ParseZkvmIdentError::UnknownZkvm(v.to_owned())),
+        (_, _, true) => panic!(
+            "invalid configuration - configuration option `zkvm_pico` may be set only when target_vendor is `risc0`."
+        ),
+        ("zkvm", vendor, _) => {
+            println!(
+                r#"cargo::warning=Unknown zkvm vendor found ("{vendor}") - cfg_zkvm doesn't support this zkvm."#
+            );
+            return;
         }
-    }
-}
+        (_, _, _) => return,
+    };
 
-impl ZkvmIdent {
-    fn cfg_attr(self) -> proc_macro2::TokenStream {
-        match self {
-            Self::Risc0 => quote!(all(
-                target_os = "zkvm",
-                target_vendor = "risc0",
-                not(zkvm_pico)
-            )),
-            Self::Sp1 => quote!(all(target_os = "zkvm", target_vendor = "sp1")),
-            Self::Pico => quote!(all(target_os = "zkvm", target_vendor = "risc0", zkvm_pico)),
-            Self::Ziren => quote!(all(target_os = "zkvm", target_vendor = "zkm")),
-            Self::Zisk => quote!(all(target_os = "zkvm", target_vendor = "zisk")),
-        }
-    }
-}
-
-fn transform_expr(attr: Expr) -> syn::Result<proc_macro2::TokenStream> {
-    match attr {
-        Expr::Path(path) => {
-            let ident = path.path.require_ident()?;
-
-            Ok(ident
-                .to_string()
-                .parse()
-                .map(|zkvm: ZkvmIdent| zkvm.cfg_attr())
-                .unwrap_or_else(|_| quote!(#ident)))
-        }
-        Expr::Assign(call) => {
-            let Expr::Path(ref ident) = *call.left else {
-                return Err(syn::Error::new(
-                    call.left.span(),
-                    "Only identifier supported in this place",
-                ));
-            };
-
-            let ident = ident.path.require_ident()?;
-
-            if ident.to_string() != "zkvm" {
-                return Ok(quote!(#call));
-            }
-
-            let Expr::Lit(lit) = *call.right else {
-                return Err(syn::Error::new(
-                    call.right.span(),
-                    "Only string literal supported in this place",
-                ));
-            };
-
-            let Lit::Str(str) = lit.lit else {
-                return Err(syn::Error::new(
-                    lit.lit.span(),
-                    "Only string literal supported in this place",
-                ));
-            };
-
-            let zkvm: ZkvmIdent = str
-                .value()
-                .parse()
-                .map_err(|e| syn::Error::new(str.span(), format!("{e:?}")))?;
-
-            Ok(zkvm.cfg_attr())
-        }
-        Expr::Call(mut call) => {
-            call.args = call
-                .args
-                .into_iter()
-                .map(|v| syn::parse2::<Expr>(transform_expr(v)?))
-                .collect::<Result<_, syn::Error>>()?;
-
-            Ok(quote!(#call))
-        }
-        _ => Err(syn::Error::new(attr.span(), "Not supported expression")),
-    }
+    println!("cargo::rustc-cfg={}", zkvm);
+    println!("cargo::rustc-cfg=zkvm={:?}", zkvm);
 }
