@@ -7,7 +7,9 @@ univm-platform = { path = "../../crates/univm-platform" }
 univm-io = { path = "../../crates/univm-io" }
 univm-build = { path = "../../crates/univm-build" }
 univm-risc0 = { path = "../../crates/univm-risc0" }
+univm-sp1 = { path = "../../crates/univm-sp1" }
 univm-platform-risc0 = { path = "../../crates/univm-platform-risc0" }
+univm-platform-sp1 = { path = "../../crates/univm-platform-sp1" }
 univm-interface = { path = "../../crates/univm-interface" }
 cfg-zkvm = { path = "../../crates/cfg-zkvm" }
 
@@ -20,3 +22,4 @@ edition = "2024"
 zkvm-guest = { path = "./guest" }
 univm-interface = { workspace = true }
 univm-risc0 = { workspace = true }
+univm-sp1 = { workspace = true }

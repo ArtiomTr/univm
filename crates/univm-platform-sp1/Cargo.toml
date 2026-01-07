@@ -1,0 +1,8 @@
+[package]
+name = "univm-platform-sp1"
+version = "0.1.0"
+edition.workspace = true
+
+[dependencies]
+univm-platform = { workspace = true }
+sp1-zkvm = { workspace = true }

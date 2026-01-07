@@ -39,10 +39,10 @@ pub struct Risc0ExecutionReport(SessionInfo);
 
 impl ExecutionReport for Risc0ExecutionReport {}
 
-pub struct Risc0Program<In, Out, Io> {
+pub struct Risc0Program<In, Out, TIo: Io<In> + Io<Out>> {
     elf: Vec<u8>,
     image_id: Digest,
-    io: Io,
+    io: TIo,
 
     _phantom: PhantomData<(In, Out)>,
 }

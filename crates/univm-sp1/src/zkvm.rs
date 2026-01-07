@@ -1,0 +1,97 @@
+use std::marker::PhantomData;
+
+use sp1_prover::components::CpuProverComponents;
+use sp1_sdk::{Prover, ProverClient, SP1ProvingKey, SP1Stdin, SP1VerifyingKey};
+use univm_interface::{ExecutionReport, GuestProgram, Proof, Zkvm, ZkvmMethods};
+use univm_io::Io;
+
+pub struct Sp1 {
+    prover: Box<dyn Prover<CpuProverComponents>>,
+}
+
+impl Default for Sp1 {
+    fn default() -> Self {
+        Self {
+            prover: Box::new(ProverClient::from_env()),
+        }
+    }
+}
+
+impl ZkvmMethods for Sp1 {
+    fn name(&self) -> &'static str {
+        "sp1"
+    }
+}
+
+impl Zkvm for Sp1 {
+    type Proof = Sp1Proof;
+    type ExecutionReport = Sp1ExecutionReport;
+}
+
+pub struct Sp1ExecutionReport(sp1_sdk::ExecutionReport);
+
+impl ExecutionReport for Sp1ExecutionReport {}
+
+pub struct Sp1Proof(sp1_sdk::SP1ProofWithPublicValues);
+
+impl Proof for Sp1Proof {}
+
+pub struct Sp1Program<In, Out, TIo: Io<In> + Io<Out>> {
+    elf: Vec<u8>,
+    io: TIo,
+    pk: SP1ProvingKey,
+    vk: SP1VerifyingKey,
+
+    _phantom: PhantomData<(In, Out)>,
+}
+
+impl<TInput, TOutput, TIo: Io<TInput> + Io<TOutput>> Sp1Program<TInput, TOutput, TIo> {
+    pub fn new(vm: &Sp1, elf: &[u8], io: TIo) -> Self {
+        let (pk, vk) = vm.prover.setup(elf);
+
+        Self {
+            elf: elf.to_vec(),
+            io,
+            pk,
+            vk,
+            _phantom: PhantomData,
+        }
+    }
+}
+
+impl<TInput, TOutput, TIo: Io<TInput> + Io<TOutput>> GuestProgram<Sp1>
+    for Sp1Program<TInput, TOutput, TIo>
+{
+    type Input = TInput;
+    type Output = TOutput;
+
+    fn execute(
+        &self,
+        zkvm: &Sp1,
+        input: Self::Input,
+    ) -> Result<(Self::Output, Sp1ExecutionReport), ()> {
+        let bytes = self.io.serialize(input).unwrap();
+        let mut stdin = SP1Stdin::new();
+
+        stdin.write_slice(&bytes);
+
+        let (values, report) = zkvm.prover.execute(&self.elf, &stdin).unwrap();
+
+        let output = self.io.deserialize(values.as_slice()).unwrap();
+        let report = Sp1ExecutionReport(report);
+
+        Ok((output, report))
+    }
+
+    fn prove(
+        &self,
+        zkvm: &Sp1,
+        input: Self::Input,
+    ) -> Result<(Self::Output, Sp1Proof, Sp1ExecutionReport), ()> {
+        todo!()
+    }
+
+    fn verify(&self, zkvm: &Sp1, proof: &Sp1Proof) -> bool {
+        zkvm.prover.verify(&proof.0, &self.vk).is_ok()
+    }
+}

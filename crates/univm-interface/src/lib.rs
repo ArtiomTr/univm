@@ -22,7 +22,7 @@ pub trait Zkvm: ZkvmMethods {
 pub trait GuestProgramBuilder<V: Zkvm> {
     type Program: GuestProgram<V>;
 
-    fn init() -> Self::Program;
+    fn init(zkvm: &V) -> Self::Program;
 }
 
 pub trait GuestProgram<T: Zkvm> {

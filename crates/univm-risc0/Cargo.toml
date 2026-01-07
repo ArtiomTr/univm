@@ -8,4 +8,3 @@ univm-interface = { workspace = true }
 univm-io = { workspace = true }
 risc0-build = { workspace = true }
 risc0-zkvm = { workspace = true, features = ['prove'] }
-cargo_metadata = { workspace = true }

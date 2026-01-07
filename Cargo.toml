@@ -9,6 +9,8 @@ members = [
     "crates/univm-risc0",
     "crates/cfg-zkvm",
     "crates/cfg-zkvm-macro",
+    "crates/univm-platform-sp1",
+    "crates/univm-sp1",
 ]
 resolver = "3"
 
@@ -27,17 +29,22 @@ univm-io = { path = "./crates/univm-io" }
 cfg-zkvm-macro = { path = "./crates/cfg-zkvm-macro" }
 cfg-zkvm = { path = "./crates/cfg-zkvm" }
 
-risc0-zkvm = { version = "3.0.4" }
-risc0-build = { version = "3.0.4" }
+toml = "0.9.10+spec-1.1.0"
+risc0-zkvm = "3.0.4"
+risc0-build = "3.0.4"
 ssz = { git = "https://github.com/grandinetech/grandine", package = "ssz", branch = "develop" }
 ssz-derive = { git = "https://github.com/grandinetech/grandine", package = "ssz_derive", branch = "develop" }
-thiserror = { version = "2.0.17" }
-syn = { version = "2.0.111" }
-quote = { version = "1.0.42" }
-proc-macro2 = { version = "1.0.103" }
-cfg-if = { version = "1.0.4" }
-paste = { version = "1.0.15" }
+thiserror = "2.0.17"
+syn = "2.0.111"
+quote = "1.0.42"
+proc-macro2 = "1.0.103"
+cfg-if = "1.0.4"
+paste = "1.0.15"
 cargo_metadata = "0.23.1"
 cfg_aliases = "0.2.1"
 trybuild = "1.0.114"
 proc-macro-error = "1.0.4"
+sp1-zkvm = "5.2.4"
+sp1-helper = "5.2.4"
+sp1-sdk = "5.2.4"
+sp1-prover = "5.2.4"

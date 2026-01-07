@@ -30,7 +30,7 @@ impl Compiler for Risc0Compiler {
                 r#"pub struct [<$base_program_name Risc0>](univm_risc0::Risc0Program<$input, $output, $io>);
 
                 impl [<$base_program_name Risc0>] {{
-                    fn init() -> Self {{
+                    fn init(_vm: &univm_risc0::Risc0) -> Self {{
                         const ELF: &[u8] = include_bytes!({elf_path:?});
                         const DIGEST: [u32; 8] = {image_id:?};
 

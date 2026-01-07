@@ -161,8 +161,8 @@ impl BuildOptions {
                      }| format!(r#"impl univm_interface::GuestProgramBuilder<{vm_full_name}> for $base_program_name {{
                             type Program = {program_name};
 
-                            fn init() -> Self::Program {{
-                                {program_name}::init()
+                            fn init(vm: &{vm_full_name}) -> Self::Program {{
+                                {program_name}::init(vm)
                             }}
                         }}"#))
                     .collect::<String>(),
