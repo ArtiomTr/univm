@@ -6,17 +6,31 @@ pub trait ZkvmMethods {
     fn name(&self) -> &'static str;
 }
 
-pub trait Proof {}
+/// Enum, describing what proof kind
+pub enum ProofKind {
+    Core,
+    Compressed,
+    Groth16,
+    Plonk,
+}
 
-impl Proof for Box<dyn Proof> {}
+#[auto_impl::auto_impl(&, Box)]
+pub trait Proof {
+    fn claim(&self) -> &[u8];
+}
 
-pub trait ExecutionReport {}
+#[auto_impl::auto_impl(&, Box)]
+pub trait ExecutionReport {
+    fn cycles(&self) -> u64;
+}
 
-impl ExecutionReport for Box<dyn ExecutionReport> {}
+#[auto_impl::auto_impl(&, Box)]
+pub trait ProvingReport {}
 
 pub trait Zkvm: ZkvmMethods {
     type Proof: Proof;
     type ExecutionReport: ExecutionReport;
+    type ProvingReport: ProvingReport;
 }
 
 pub trait GuestProgramBuilder<V: Zkvm> {
@@ -39,9 +53,10 @@ pub trait GuestProgram<T: Zkvm> {
         &self,
         zkvm: &T,
         input: Self::Input,
-    ) -> Result<(Self::Output, T::Proof, T::ExecutionReport), ()>;
+    ) -> Result<(Self::Output, T::Proof, T::ProvingReport), ()>;
 
-    fn verify(&self, zkvm: &T, proof: &T::Proof) -> bool;
+    #[must_use]
+    fn verify(&self, zkvm: &T, proof: &T::Proof) -> Result<Self::Output, ()>;
 }
 
 pub struct UniProof(Box<dyn Proof>);
@@ -58,7 +73,11 @@ impl UniProof {
     }
 }
 
-impl Proof for UniProof {}
+impl Proof for UniProof {
+    fn claim(&self) -> &[u8] {
+        self.0.claim()
+    }
+}
 
 pub type UniExecutionReport = Box<dyn ExecutionReport>;
 
@@ -84,6 +103,6 @@ impl ZkvmMethods for UniVM {
 
 impl Zkvm for UniVM {
     type Proof = UniProof;
-
     type ExecutionReport = Box<dyn ExecutionReport>;
+    type ProvingReport = Box<dyn ProvingReport>;
 }

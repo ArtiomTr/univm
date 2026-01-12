@@ -2,7 +2,7 @@ use std::marker::PhantomData;
 
 use sp1_prover::components::CpuProverComponents;
 use sp1_sdk::{Prover, ProverClient, SP1ProvingKey, SP1Stdin, SP1VerifyingKey};
-use univm_interface::{ExecutionReport, GuestProgram, Proof, Zkvm, ZkvmMethods};
+use univm_interface::{ExecutionReport, GuestProgram, Proof, ProvingReport, Zkvm, ZkvmMethods};
 use univm_io::Io;
 
 pub struct Sp1 {
@@ -26,15 +26,28 @@ impl ZkvmMethods for Sp1 {
 impl Zkvm for Sp1 {
     type Proof = Sp1Proof;
     type ExecutionReport = Sp1ExecutionReport;
+    type ProvingReport = Sp1ProvingReport;
 }
 
 pub struct Sp1ExecutionReport(sp1_sdk::ExecutionReport);
 
-impl ExecutionReport for Sp1ExecutionReport {}
+impl ExecutionReport for Sp1ExecutionReport {
+    fn cycles(&self) -> u64 {
+        self.0.total_instruction_count()
+    }
+}
+
+pub struct Sp1ProvingReport {}
+
+impl ProvingReport for Sp1ProvingReport {}
 
 pub struct Sp1Proof(sp1_sdk::SP1ProofWithPublicValues);
 
-impl Proof for Sp1Proof {}
+impl Proof for Sp1Proof {
+    fn claim(&self) -> &[u8] {
+        self.0.public_values.as_slice()
+    }
+}
 
 pub struct Sp1Program<In, Out, TIo: Io<In> + Io<Out>> {
     elf: Vec<u8>,
@@ -87,11 +100,25 @@ impl<TInput, TOutput, TIo: Io<TInput> + Io<TOutput>> GuestProgram<Sp1>
         &self,
         zkvm: &Sp1,
         input: Self::Input,
-    ) -> Result<(Self::Output, Sp1Proof, Sp1ExecutionReport), ()> {
-        todo!()
+    ) -> Result<(Self::Output, Sp1Proof, Sp1ProvingReport), ()> {
+        let bytes = self.io.serialize(input).unwrap();
+        let mut stdin = SP1Stdin::new();
+        stdin.write_slice(&bytes);
+
+        let proof = zkvm
+            .prover
+            .prove(&self.pk, &stdin, sp1_sdk::SP1ProofMode::Core)
+            .unwrap();
+
+        let output = self.io.deserialize(proof.public_values.as_slice()).unwrap();
+
+        Ok((output, Sp1Proof(proof), Sp1ProvingReport {}))
     }
 
-    fn verify(&self, zkvm: &Sp1, proof: &Sp1Proof) -> bool {
-        zkvm.prover.verify(&proof.0, &self.vk).is_ok()
+    fn verify(&self, zkvm: &Sp1, proof: &Sp1Proof) -> Result<Self::Output, ()> {
+        zkvm.prover.verify(&proof.0, &self.vk).map_err(|_| ())?;
+
+        let values = proof.0.public_values.as_slice();
+        self.io.deserialize(values).map_err(|_| ())
     }
 }

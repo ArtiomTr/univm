@@ -8301,7 +8301,9 @@ dependencies = [
 name = "univm-interface"
 version = "0.1.0"
 dependencies = [
+ "auto_impl",
  "paste",
+ "univm-io",
 ]
 
 [[package]]

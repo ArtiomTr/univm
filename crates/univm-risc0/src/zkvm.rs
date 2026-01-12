@@ -1,9 +1,10 @@
 use std::{marker::PhantomData, rc::Rc};
 
 use risc0_zkvm::{
-    Digest, Executor, ExecutorEnv, Prover, Receipt, SessionInfo, default_executor, default_prover,
+    Digest, Executor, ExecutorEnv, ProveInfo, Prover, Receipt, SessionInfo, default_executor,
+    default_prover,
 };
-use univm_interface::{ExecutionReport, GuestProgram, Proof, Zkvm, ZkvmMethods};
+use univm_interface::{ExecutionReport, GuestProgram, Proof, ProvingReport, Zkvm, ZkvmMethods};
 use univm_io::Io;
 
 pub struct Risc0 {
@@ -29,15 +30,28 @@ impl ZkvmMethods for Risc0 {
 impl Zkvm for Risc0 {
     type Proof = Risc0Proof;
     type ExecutionReport = Risc0ExecutionReport;
+    type ProvingReport = Risc0ProvingReport;
 }
 
 pub struct Risc0Proof(Receipt);
 
-impl Proof for Risc0Proof {}
+impl Proof for Risc0Proof {
+    fn claim(&self) -> &[u8] {
+        &self.0.journal.bytes
+    }
+}
 
 pub struct Risc0ExecutionReport(SessionInfo);
 
-impl ExecutionReport for Risc0ExecutionReport {}
+impl ExecutionReport for Risc0ExecutionReport {
+    fn cycles(&self) -> u64 {
+        self.0.cycles()
+    }
+}
+
+pub struct Risc0ProvingReport(ProveInfo);
+
+impl ProvingReport for Risc0ProvingReport {}
 
 pub struct Risc0Program<In, Out, TIo: Io<In> + Io<Out>> {
     elf: Vec<u8>,
@@ -89,7 +103,7 @@ impl<TInput, TOutput, TIo: Io<TInput> + Io<TOutput>> GuestProgram<Risc0>
         &self,
         zkvm: &Risc0,
         input: Self::Input,
-    ) -> Result<(Self::Output, Risc0Proof, Risc0ExecutionReport), ()> {
+    ) -> Result<(Self::Output, Risc0Proof, Risc0ProvingReport), ()> {
         let bytes = self.io.serialize(input).unwrap();
         let env = ExecutorEnv::builder().write_slice(&bytes).build().unwrap();
 
@@ -97,13 +111,15 @@ impl<TInput, TOutput, TIo: Io<TInput> + Io<TOutput>> GuestProgram<Risc0>
 
         let output =
             <TIo as Io<Self::Output>>::deserialize(&self.io, &info.receipt.journal.bytes).unwrap();
-        let proof = Risc0Proof(info.receipt);
+        let proof = Risc0Proof(info.receipt.clone());
+        let report = Risc0ProvingReport(info);
 
-        todo!()
-        // Ok((output, ))
+        Ok((output, proof, report))
     }
 
-    fn verify(&self, _zkvm: &Risc0, proof: &Risc0Proof) -> bool {
-        proof.0.verify(self.image_id).is_ok()
+    fn verify(&self, _zkvm: &Risc0, proof: &Risc0Proof) -> Result<Self::Output, ()> {
+        proof.0.verify(self.image_id).map_err(|_| ())?;
+
+        self.io.deserialize(&proof.0.journal.bytes).map_err(|_| ())
     }
 }
