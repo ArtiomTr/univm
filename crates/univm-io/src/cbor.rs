@@ -26,12 +26,48 @@ where
 {
     type Error = CborError;
 
+    /// Serializes a value to CBOR and returns the resulting byte vector.
+    ///
+    /// On success returns the CBOR-encoded bytes representing `value`.
+    ///
+    /// # Errors
+    ///
+    /// Returns a `CborError::Serialize` if the value cannot be encoded as CBOR.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use serde::Serialize;
+    ///
+    /// let io = CborIo;
+    /// let bytes = io.serialize(42u32).unwrap();
+    /// assert!(!bytes.is_empty());
+    /// ```
     fn serialize(&self, value: T) -> Result<Vec<u8>, Self::Error> {
         let mut buf = Vec::new();
         ciborium::into_writer(&value, &mut buf)?;
         Ok(buf)
     }
 
+    /// Deserializes a value of type `T` from CBOR-encoded bytes.
+    ///
+    /// # Returns
+    ///
+    /// `Ok(T)` with the decoded value, `Err(CborError)` if CBOR deserialization fails.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use serde::{Serialize, Deserialize};
+    ///
+    /// #[derive(Serialize, Deserialize, PartialEq, Debug)]
+    /// struct S(u8);
+    ///
+    /// let io = CborIo;
+    /// let bytes = io.serialize(S(7)).unwrap();
+    /// let decoded: S = io.deserialize(&bytes).unwrap();
+    /// assert_eq!(decoded, S(7));
+    /// ```
     fn deserialize(&self, bytes: &[u8]) -> Result<T, Self::Error> {
         Ok(ciborium::from_reader(bytes)?)
     }

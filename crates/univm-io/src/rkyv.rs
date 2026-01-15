@@ -51,12 +51,50 @@ where
 {
     type Error = RkyvError;
 
+    /// Serialize a value into a rkyv-encoded byte vector.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use crate::rkyv::RkyvIo;
+    ///
+    /// let io = RkyvIo;
+    /// let bytes = io.serialize(42u32).expect("serialization failed");
+    /// assert!(!bytes.is_empty());
+    /// ```
+    ///
+    /// # Returns
+    ///
+    /// Serialized bytes as a `Vec<u8>`.
     fn serialize(&self, value: T) -> Result<Vec<u8>, Self::Error> {
         rkyv::to_bytes::<BoxedError>(&value)
             .map(|aligned| aligned.to_vec())
             .map_err(RkyvError::Serialize)
     }
 
+    /// Deserializes a value of type `T` from a Rkyv-encoded byte slice.
+    ///
+    /// Attempts to validate and reconstruct the original value from `bytes`.
+    ///
+    /// # Returns
+    ///
+    /// The deserialized value of type `T`.
+    ///
+    /// # Errors
+    ///
+    /// Returns `RkyvError::Deserialize` if validation or reconstruction fails.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use univm_io::RkyvIo;
+    ///
+    /// // `MyType` must implement the rkyv archive/serialize/deserialize traits required by RkyvIo.
+    /// let io = RkyvIo::default();
+    /// let original = MyType::example();
+    /// let bytes = io.serialize(original).unwrap();
+    /// let recovered: MyType = io.deserialize(&bytes).unwrap();
+    /// ```
     fn deserialize(&self, bytes: &[u8]) -> Result<T, Self::Error> {
         rkyv::from_bytes::<T, BoxedError>(bytes).map_err(RkyvError::Deserialize)
     }

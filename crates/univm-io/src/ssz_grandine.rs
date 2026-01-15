@@ -23,10 +23,42 @@ pub enum SszGrandineError {
 impl<T: SszReadDefault + SszWrite> Io<T> for SszGrandineIo {
     type Error = SszGrandineError;
 
+    /// Serializes a value into its SSZ byte representation.
+    ///
+    /// Returns the SSZ-encoded bytes of `value`.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if serialization fails.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let io = SszGrandineIo;
+    /// let value = 42u64; // type must implement `SszReadDefault` + `SszWrite`
+    /// let bytes = io.serialize(value).unwrap();
+    /// assert!(!bytes.is_empty());
+    /// ```
     fn serialize(&self, value: T) -> Result<Vec<u8>, Self::Error> {
         Ok(value.to_ssz()?)
     }
 
+    /// Deserializes SSZ-encoded bytes into the target type.
+    ///
+    /// On success, returns the deserialized value of type `T`. On failure, returns
+    /// a `SszGrandineError::Read` wrapping the underlying read/deserialization error.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use univm_io::ssz_grandine::SszGrandineIo;
+    ///
+    /// let io = SszGrandineIo::default();
+    /// // `u64` is shown as an example type that implements `SszReadDefault` + `SszWrite`.
+    /// let bytes = 42u64.to_ssz();
+    /// let value: u64 = io.deserialize(&bytes).unwrap();
+    /// assert_eq!(value, 42u64);
+    /// ```
     fn deserialize(&self, bytes: &[u8]) -> Result<T, Self::Error> {
         Ok(T::from_ssz_default(bytes)?)
     }
