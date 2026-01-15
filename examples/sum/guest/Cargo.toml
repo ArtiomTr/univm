@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 zkvm-guest-methods = { path = "./methods" }
-univm-io = { workspace = true, features = ["ssz"] }
+univm-io = { workspace = true, features = ["ssz_grandine"] }
 univm-risc0 = { workspace = true }
 univm-sp1 = { workspace = true }
 univm-interface = { workspace = true }

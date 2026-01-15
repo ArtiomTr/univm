@@ -1,5 +1,5 @@
-use ssz::Ssz;
-use univm_io::ssz::SszIo;
+use ssz_grandine::Ssz;
+use univm_io::ssz_grandine::SszGrandineIo;
 
 #[derive(Debug, Ssz)]
 pub struct Input {
@@ -12,7 +12,7 @@ pub struct Output {
     pub sum: u64,
 }
 
-#[univm_platform::function(SszIo)]
+#[univm_platform::function(SszGrandineIo)]
 pub fn state_transition(input: Input) -> Output {
     println!("Hello, world!");
 

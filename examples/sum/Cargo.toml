@@ -12,6 +12,7 @@ univm-platform-risc0 = { path = "../../crates/univm-platform-risc0" }
 univm-platform-sp1 = { path = "../../crates/univm-platform-sp1" }
 univm-interface = { path = "../../crates/univm-interface" }
 cfg-zkvm = { path = "../../crates/cfg-zkvm" }
+ssz_grandine = { git = "https://github.com/grandinetech/grandine", package = "ssz", branch = "develop" }
 
 [package]
 name = "sum"

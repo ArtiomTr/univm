@@ -4,5 +4,22 @@ version = "0.1.0"
 edition.workspace = true
 
 [dependencies]
-ssz = { workspace = true, optional = true }
+ssz_grandine = { workspace = true, optional = true }
+ethereum_ssz = { workspace = true, optional = true }
+serde = { workspace = true, optional = true }
+bincode = { workspace = true, optional = true }
+ciborium = { workspace = true, optional = true }
+rkyv = { workspace = true, optional = true }
 thiserror = { workspace = true }
+
+[features]
+# Bincode serialization
+bincode = ["dep:serde", "dep:bincode"]
+# CBOR serialization
+cbor = ["dep:serde", "dep:ciborium"]
+# SSZ serialization using ethereum_ssz crate
+ssz = ["dep:ethereum_ssz"]
+# SSZ serialization using Grandine's implementation
+ssz_grandine = ["dep:ssz_grandine"]
+# rkyv zero-copy serialization
+rkyv = ["dep:rkyv"]

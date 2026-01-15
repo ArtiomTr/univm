@@ -8,9 +8,9 @@ name = "zkvm_guest_methods_lib"
 
 [dependencies]
 univm-platform = { workspace = true }
-univm-io = { workspace = true, features = ["ssz"] }
+univm-io = { workspace = true, features = ["ssz_grandine"] }
 getrandom = { version = "0.2", features = ["custom"] }
-ssz = { git = "https://github.com/grandinetech/grandine", branch = "develop", package = "ssz" }
+ssz_grandine = { workspace = true }
 univm-platform-risc0 = { workspace = true }
 univm-platform-sp1 = { workspace = true }
 
